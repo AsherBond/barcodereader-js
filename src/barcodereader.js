@@ -110,10 +110,12 @@
 
             return q
 
+        },
+
+        readLine : function(img){
+
+
         }
-
-
-
     }
 
 } )();

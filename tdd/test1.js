@@ -155,3 +155,9 @@ test( "BarcodeReader quantize", function(){
 
 });
 
+
+test( "BarcodeReader readLine", function(){
+
+
+
+} );
