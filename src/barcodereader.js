@@ -81,6 +81,35 @@
 
             return { l : l, r : r }
 
+        },
+
+        checkSync : function(x){
+            return !! x.slice( 6 * 7 ).match( /^1010/ );
+        },
+
+        quantize : function(x, b){
+            var threshold 
+            var border = b || 2
+
+            var q = []
+
+            threshold = ( Math.max.apply( null, x ) + Math.min.apply( null, x ) ) / 2
+            
+            for ( var i = 0; i < x.length; i++ ){
+                var localsur = x.slice(
+                    Math.max( i - border, 0 ),
+                    Math.min( i + border, x.length )
+                );
+                var lt = (
+                    threshold 
+                    + localsur.reduce( function(x,y){ return x + y } ) / ( 2 * border + 1 )
+                ) / 2;
+
+                q.push( x[i] > lt ? 1 : 0 )
+            }
+
+            return q
+
         }
 
 

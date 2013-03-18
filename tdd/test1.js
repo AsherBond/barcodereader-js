@@ -3,7 +3,7 @@ test( "BarcodeReader defined", function(){
 } );
 
 test( "BarcodeReader methods", function(){
-    var methods = ['RLE', 'detectGuards', 'unRLE', 'resample', 'parts' ];
+    var methods = ['RLE', 'detectGuards', 'unRLE', 'resample', 'parts', 'checkSync', 'quantize', 'readLine' ];
 
     expect( methods.length );
 
@@ -107,3 +107,51 @@ test( "BarcodeReader parts works", function(){
     }
 
 } );
+
+test( "BarcodeReader checkSync", function(){
+    var testVectors = [
+        [ "1010101 1010111 1111000 1111000 1111111 0010101 1010", true ],
+        [ "1010101 1010111 1111000 1111000 1111111 0010101 1010000", true ],
+        [ "1010101 1010111 1111000 1111000 1111111 0010101 1010", true ],
+        [ "1010101 1010111 1111000 1111000 1111111 0010101 101010111", true ],
+        [ "1010101 1010111 1111000 1111000 1111111 0010101 101011111", true ],
+        [ "1010101 1010111 1111000 1111000 1111111 0011", false ],
+        [ "1010101 1010111 1111000 1111000 1111111 0010101", false ],
+        [ "1010101 1010111 1111000 1111000 1111111 0010101 11111", false ],
+        [ "1010101 1010111 1111000 1111000 1111111 0010101 0010", false ]
+    ];
+
+    expect( testVectors.length );
+
+    for ( var i = 0; i < testVectors.length; i++ ){
+        equal(
+            BarcodeReader.checkSync( testVectors[i][0].replace(/[^01]/g,'') ),
+            testVectors[i][1],
+            testVectors[i].join( " is " )
+        );
+    }
+
+} );
+
+test( "BarcodeReader quantize", function(){
+
+    var testVectors = [
+        [ [10,30,10,30,11,31,8,30], [0,1,0,1,0,1,0,1], 2 ],
+        [ [10,110,10,10,60,60,10,110,110,110,60,60,110,110], [0,1,0,0,1,1,0,1,1,1,0,0,1,1], 2 ],
+        [ [10,110,10,10,65,65,10,110,110,110,65,65,110,110], [0,1,0,0,1,1,0,1,1,1,0,0,1,1], 2 ],
+    ];
+
+    for ( var i = 0; i < testVectors.length; i++ ){
+        var border = testVectors[i][2]
+        var input = testVectors[i][0]
+        var output = testVectors[i][1]
+
+        deepEqual(
+            BarcodeReader.quantize( input, border ),
+            output,
+            input + " -> " + output
+        );
+    };
+
+});
+
