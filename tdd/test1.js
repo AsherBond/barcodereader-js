@@ -3,7 +3,16 @@ test( "BarcodeReader defined", function(){
 } );
 
 test( "BarcodeReader methods", function(){
-    var methods = ['RLE', 'detectGuards', 'unRLE', 'resample', 'parts', 'checkSync', 'quantize', 'readLine' ];
+    var methods = [
+        'RLE',
+        'detectGuards',
+        'unRLE',
+        'resample',
+        'parts',
+        'checkSync',
+        'quantize',
+        'readLine'
+    ];
 
     expect( methods.length );
 
