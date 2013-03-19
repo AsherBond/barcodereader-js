@@ -11,7 +11,7 @@ test( "BarcodeReader methods", function(){
         'parts',
         'checkSync',
         'quantize',
-        'readLine'
+        'getLineFromImage'
     ];
 
     expect( methods.length );
@@ -168,9 +168,9 @@ test( "BarcodeReader checkSync", function(){
 test( "BarcodeReader quantize", function(){
 
     var testVectors = [
-        [ [10,30,10,30,11,31,8,30], [0,1,0,1,0,1,0,1], 2 ],
-        [ [10,110,10,10,60,60,10,110,110,110,60,60,110,110], [0,1,0,0,1,1,0,1,1,1,0,0,1,1], 2 ],
-        [ [10,110,10,10,65,65,10,110,110,110,65,65,110,110], [0,1,0,0,1,1,0,1,1,1,0,0,1,1], 2 ],
+        [ [10,30,10,30,11,31,8,30], [1,0,1,0,1,0,1,0], 2 ],
+        [ [10,110,10,10,60,60,10,110,110,110,60,60,110,110], [1,0,1,1,0,0,1,0,0,0,1,1,0,0], 2 ],
+        [ [10,110,10,10,65,65,10,110,110,110,65,65,110,110], [1,0,1,1,0,0,1,0,0,0,1,1,0,0], 2 ],
     ];
 
     for ( var i = 0; i < testVectors.length; i++ ){
@@ -188,8 +188,30 @@ test( "BarcodeReader quantize", function(){
 });
 
 
-test( "BarcodeReader readLine", function(){
+test( "Image ready?", function(){
+    ok( document.querySelector( '#img1 img' ).src.match(/(png|jpg)$/), 'ready' );
+})
 
+test( "BarcodeReader getLineFromImage", function(){
+    var testVectors = [
+        { selector : "#img2 img", lines : 10,                   output : true },
+        { selector : "#img2 img", lines : [ 10, 11, 12 ],       output : true },
+        { selector : "#img2 img", lines : [ 10, 11, 12, 13 ],   output : true }
+    ];
+
+    expect( testVectors.length * 3);
+    
+    for ( var i = 0; i < testVectors.length; i++ ){
+        var o = BarcodeReader.getLineFromImage(
+            document.querySelector( testVectors[i].selector ),
+            testVectors[i].lines
+        );
+
+        ok( o );
+        ok( o instanceof Array );
+        ok( o.length > 10 );
+
+    }
 
 
 } );

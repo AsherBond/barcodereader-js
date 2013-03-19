@@ -1,5 +1,6 @@
 ( function(){
     BarcodeReader = {
+
         RLE : function( x ){
             var last = x[0]
             var count = 1
@@ -97,7 +98,7 @@
 
         quantize : function(x, b){
             var threshold 
-            var border = b || 2
+            var border = b || 10
 
             var q = []
 
@@ -113,15 +114,130 @@
                     + localsur.reduce( function(x,y){ return x + y } ) / ( 2 * border + 1 )
                 ) / 2;
 
-                q.push( x[i] > lt ? 1 : 0 )
+                q.push( x[i] > lt ? 0 : 1 )
             }
 
             return q
 
         },
 
-        readLine : function(img){
+        loadImage : function( img ){
 
+
+        },
+
+        getLineFromImage : function( img, lines ){
+
+            if ( "string" === typeof img ){
+                var imgsrc = img;
+                img = document.createElement("img");
+                img.src = imgsrc;
+            } 
+
+            if ( ! ( lines instanceof Array ) ){
+                if ( "number" === typeof lines ){
+                    lines = [ lines ]
+                }
+                else if ( "string" === typeof lines ){
+                    lines = [ parseInt( lines ) ]
+                }
+                else {
+                    throw new Error( "Unknown lines specification" )
+                }
+            }
+            if ( "object" !== typeof img || img.nodeName != "IMG" ){
+                throw new Error( "Wrong parameter to getLineFromImage" );
+            }
+            if ( img.width == 0 || img.height == 0 ){
+                throw new Error( "img size 0" )
+            }
+
+            var cnv = document.createElement('canvas');
+            var ctx = cnv.getContext('2d');
+
+            cnv.width = img.width;
+            cnv.height = img.height;
+            ctx.drawImage( img, 0, 0 );
+
+            picline = []
+
+            for ( var j = 0; j < img.width; j++ ){
+                picline[j]=0;
+            }
+
+            for ( var i = 0; i < lines.length; i ++ ){
+
+                if ( lines[i] > img.height ){
+                    throw new Error("Line number out of range");
+                }
+
+                var pxbuffer = ctx.getImageData(
+                    0, lines[i], // FIXME
+                    img.width, 1
+                ).data;
+
+                var pxgraybuffer = this.convertRGBALineToGrayscale( pxbuffer );
+
+ //               console.log( "grayline " + i, pxgraybuffer );
+
+                for ( var j = 0; j < img.width; j++ ){
+                    picline[j] += pxgraybuffer[j]
+                }
+            }
+
+            picline = picline.map( function(x){ return x/lines.length } )
+
+//            console.log( "picline", picline );
+
+            return picline
+
+        },
+
+        convertRGBALineToGrayscale : function(){
+            throw new Error("it's GRAYSCALE");
+        },
+
+        convertRGBALineToGrayscale : function( line ){
+            var output = [];
+            for ( var j = 0; j < line.length; j+=4 ){
+                output.push( Math.round( 
+                    + 0.30 * line[j] 
+                    + 0.59 * line[j+1] 
+                    + 0.11 * line[j+2]
+                ) );
+            }
+            return output
+        },
+
+        drawLine : function( img, line, n, border ){
+
+            border = 10
+
+            var cnv = document.createElement('canvas');
+            var ctx = cnv.getContext('2d');
+
+            cnv.width = img.width;
+            cnv.height = img.height;
+            ctx.drawImage( img, 0, 0 );
+
+            img.parentNode.replaceChild( cnv, img );
+
+            var buffer = ctx.createImageData( img.width, border + 1 )
+
+            for ( var i =0; i < img.width; i++ ){
+                for ( j = 0; j < border + 1; j++ ){
+                    var pos = i * 4 + j * 4 * img.width;
+                    buffer.data[ pos ] = 
+                    buffer.data[ pos + 1 ] =
+                    buffer.data[ pos + 2 ] = 
+                        ( line[i] == 1 ) ? 0 : 255
+                    buffer.data[ pos + 3 ] = 255
+                 }
+            }
+
+            console.log( buffer.data )
+
+            ctx.putImageData( buffer, 0, n )
 
         }
     }
