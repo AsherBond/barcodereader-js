@@ -25,17 +25,26 @@ test( "BarcodeReader methods", function(){
 test( "BarcodeReader RLE works", function(){
 
     var testVectors = [
-        [ "111010", [ 3,1,1,1 ] ],
-        [ "01111", [ 1, 4 ] ],
-        [ "10101", [ 1,1,1,1,1 ] ]
+        {
+            input : "111010",
+            output : [ 3,1,1,1 ] 
+        },
+        {
+            input : "01111",
+            output : [ 1, 4 ]
+        },
+        {
+            input : "10101",
+            output :[ 1,1,1,1,1 ]
+        }
      ];
 
     expect( testVectors.length );
 
     for ( var i=0; i < testVectors.length; i++ ){
         deepEqual(
-            BarcodeReader.RLE( testVectors[i][0].match(/./g) ),
-            testVectors[i][1]
+            BarcodeReader.RLE( testVectors[i].input.match(/./g) ),
+            testVectors[i].output
         );
     }
 
@@ -43,15 +52,19 @@ test( "BarcodeReader RLE works", function(){
 
 test( "BarcodeReader detectGuards works", function(){
     var testVectors = [
-        [ "100,3,20,6,7,6,10,13,6,5,6,6,7,6,6,10,12,6,13,7", "8,9,10" ]
+        {
+            type    : "ean13",
+            input   : [ 100,3,20,6,7,6,10,13,6,5,6,6,7,6,6,10,12,6,13,7 ],
+            output  : [ 8,9,10 ]
+        }
     ];
 
     expect( testVectors.length );
 
     for ( var i = 0; i < testVectors.length; i++ ){
         deepEqual(
-            BarcodeReader.detectGuards( testVectors[i][0].split(',') ),
-            testVectors[i][1].split(',').map( function(x){return +x} )
+            BarcodeReader.detectGuards( testVectors[i].input, testVectors[i].type ),
+            testVectors[i].output
         )
     }
 
@@ -60,18 +73,19 @@ test( "BarcodeReader detectGuards works", function(){
 test( "BarcodeReader resample", function(){
 
     var testVectors = [
-        [ "3.1::6,6,7,6,5,3,2,9,10", "2,2,2,2,2,1,1,3,3" ]
+        {
+            unit : 3.1,
+            input : [ 6,6,7,6,5,3,2,9,10 ],
+            output : [ 2,2,2,2,2,1,1,3,3 ]
+        }
     ];
 
     expect( testVectors.length );
 
     for ( var i = 0; i < testVectors.length; i++ ){
         deepEqual(
-            BarcodeReader.resample(
-                testVectors[i][0].split("::")[1].split(','),
-                testVectors[i][0].split("::")[0]
-            ),
-            testVectors[i][1].split(',').map( function(x){ return window.parseInt(x); } )
+            BarcodeReader.resample( testVectors[i].input, testVectors[i].unit ),
+            testVectors[i].output
         );
     };
 });
@@ -79,7 +93,10 @@ test( "BarcodeReader resample", function(){
 test( "BarcodeReader unRLE works", function(){
 
     var testVectors = [
-        [ "3,2,1,2,3,4,1,3,2", "111001001110000100011" ] 
+        {
+            input : [ 3,2,1,2,3,4,1,3,2 ], 
+            output : "111001001110000100011"
+        }
     ];
 
     expect( testVectors.length );
@@ -87,9 +104,9 @@ test( "BarcodeReader unRLE works", function(){
     for ( var i = 0; i < testVectors.length; i++ ){
         deepEqual(
             BarcodeReader.unRLE(
-              testVectors[i][0].split(',')
+              testVectors[i].input
             ),
-            testVectors[i][1].match(/./g).map(function(x){return window.parseInt(x)})
+            testVectors[i].output.match(/./g).map(function(x){return window.parseInt(x)})
         );
     }
 
@@ -111,7 +128,10 @@ test( "BarcodeReader parts works", function(){
     for ( var i = 0; i < testVectors.length; i++ ){
         deepEqual(
             BarcodeReader.parts( testVectors[i].data, testVectors[i].pos ),
-            { "r" : testVectors[i].r, "l" : testVectors[i].l }
+            {
+                "r" : testVectors[i].r,
+                "l" : testVectors[i].l
+            }
         )
     }
 
@@ -119,24 +139,27 @@ test( "BarcodeReader parts works", function(){
 
 test( "BarcodeReader checkSync", function(){
     var testVectors = [
-        [ "1010101 1010111 1111000 1111000 1111111 0010101 1010", true ],
-        [ "1010101 1010111 1111000 1111000 1111111 0010101 1010000", true ],
-        [ "1010101 1010111 1111000 1111000 1111111 0010101 1010", true ],
-        [ "1010101 1010111 1111000 1111000 1111111 0010101 101010111", true ],
-        [ "1010101 1010111 1111000 1111000 1111111 0010101 101011111", true ],
-        [ "1010101 1010111 1111000 1111000 1111111 0011", false ],
-        [ "1010101 1010111 1111000 1111000 1111111 0010101", false ],
-        [ "1010101 1010111 1111000 1111000 1111111 0010101 11111", false ],
-        [ "1010101 1010111 1111000 1111000 1111111 0010101 0010", false ]
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 1010",      output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 1010000",   output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 1010",      output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 101010111", output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 101011111", output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0011",              output : false },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101",           output : false },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 11111",     output : false },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 0010",      output : false }
     ];
 
     expect( testVectors.length );
 
     for ( var i = 0; i < testVectors.length; i++ ){
         equal(
-            BarcodeReader.checkSync( testVectors[i][0].replace(/[^01]/g,'') ),
-            testVectors[i][1],
-            testVectors[i].join( " is " )
+            BarcodeReader.checkSync(
+                testVectors[i].input.replace(/[^01]/g,'').match(/./g),
+                testVectors[i].type
+            ),
+            testVectors[i].output,
+            testVectors[i].input + " is " + testVectors[i].output
         );
     }
 
