@@ -222,7 +222,7 @@
 
             img.parentNode.replaceChild( cnv, img );
 
-            var buffer = ctx.createImageData( img.width, border + 1 )
+            var buffer = ctx.createImageData( img.width, border + 1 );
 
             for ( var i =0; i < img.width; i++ ){
                 for ( j = 0; j < border + 1; j++ ){

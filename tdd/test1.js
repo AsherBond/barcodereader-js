@@ -11,7 +11,9 @@ test( "BarcodeReader methods", function(){
         'parts',
         'checkSync',
         'quantize',
-        'getLineFromImage'
+        'getLineFromImage',
+        'decode',
+        'reverse'
     ];
 
     expect( methods.length );
@@ -215,3 +217,59 @@ test( "BarcodeReader getLineFromImage", function(){
 
 
 } );
+
+test( "BarcodeReader reverse", function(){
+    var testVectors = [
+        {
+            input   : "1110110 1101000 1101110 1100010 1100100 1011000 10100000",
+            output  : "0001101 0010011 0100011 0111011 0001011 0110111",
+            type    : "ean13"
+        },
+        {
+            input   : "1110110 1110110 1110110 1110110 1110110 1110110 10100",
+            output  : "0110111 0110111 0110111 0110111 0110111 0110111",
+            type    : "ean13"
+        }
+    ];
+
+    expect( testVectors.length );
+
+    for ( var i = 0; i < testVectors.length; i++ ){
+        equal(
+            BarcodeReader.reverse( testVectors[i].input, testVectors[i].type ),
+            testVectors[i].output,
+            "reverse " + testVectors[i].output
+        );
+    }
+
+});
+
+test( "BarcodeReader decode", function(){
+    var testVectors = [
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 1010",      output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 1010000",   output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 1010",      output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 101010111", output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 101011111", output : true },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0011",              output : false },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101",           output : false },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 11111",     output : false },
+        { type : "ean13", input :  "1010101 1010111 1111000 1111000 1111111 0010101 0010",      output : false }
+    ];
+
+    expect( testVectors.length );
+
+    for ( var i = 0; i < testVectors.length; i++ ){
+        equal(
+            BarcodeReader.checkSync(
+                testVectors[i].input.replace(/[^01]/g,'').match(/./g),
+                testVectors[i].type
+            ),
+            testVectors[i].output,
+            testVectors[i].input + " is " + testVectors[i].output
+        );
+    }
+
+} );
+
+
