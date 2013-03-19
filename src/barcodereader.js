@@ -83,8 +83,16 @@
 
         },
 
-        checkSync : function(x){
-            return !! x.slice( 6 * 7 ).match( /^1010/ );
+        checkSync : function(x,type){
+            // x - array of 0s and 1s
+            
+            switch( type ){
+                case "ean13":
+                    return !! x.slice( 6 * 7 ).join('').match( /^1010/ );
+                default:
+                    throw new Error( "unknown barcode type " + type );
+            }
+
         },
 
         quantize : function(x, b){
