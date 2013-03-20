@@ -237,7 +237,7 @@ test( "BarcodeReader reverse", function(){
     for ( var i = 0; i < testVectors.length; i++ ){
         equal(
             BarcodeReader.reverse( testVectors[i].input, testVectors[i].type ),
-            testVectors[i].output,
+            testVectors[i].output.replace(/[^01]/g,'') ,
             "reverse " + testVectors[i].output
         );
     }

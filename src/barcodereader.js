@@ -239,6 +239,31 @@
 
             ctx.putImageData( buffer, 0, n )
 
+        },
+
+        reverse : function( input, type ){
+            switch( type ){
+                case "ean13":
+                    return input.match(/[01]/g).slice(0,6*7).reverse().join('')
+                default:
+                    throw new Error("reverse: unknown code type " + type );
+            }
+        },
+
+        decode : function( input, type ){
+
+            var base_patterns = [ "00110", "01100", "01001", "11110", "10001", "11000", "10111", "11101", "11011", "00101" ];
+            
+            var neg_patt = (function(x){ return x.replace('0','x').replace('1','0').replace('x','1') })
+            var rev_patt = (function(x){ return x.match(/./g).reverse().join('') } )
+
+            var Lcodes = base_patterns.map( function(x){ return "0"+x+"1" } )
+            var Gcodes = base_patterns.map( rev_patt ).map( neg_patt ).map( function(x){ return "0"+x+"1" } )
+            var Rcodes = base_patterns.map( neg_patt ).map( function(x){ return "1"+x+"0" } )
+            
+            console.log( Lcodes.join(), Gcodes.join(), Rcodes.join() ) 
+
+
         }
     }
 
